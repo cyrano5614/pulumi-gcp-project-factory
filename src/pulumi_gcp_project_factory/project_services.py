@@ -1,4 +1,8 @@
-from typing import List, Optional, TypedDict
+try:
+    from typing import List, Optional, TypedDict
+except ImportError:
+    from typing import List, Optional
+    from typing_extensions import TypedDict
 
 import pulumi
 import pulumi_gcp as gcp
