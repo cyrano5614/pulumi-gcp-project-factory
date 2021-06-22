@@ -1,0 +1,4 @@
+name: project_factory
+runtime:
+  name: python
+description: Pulumi GCP project factory
