@@ -1,5 +1,6 @@
+# pyright: reportUnboundVariable=false
 try:
-    from typing import List, Optional, TypedDict
+    from typing import List, Optional, Sequence, TypedDict
 except ImportError:
     from typing import List, Optional
     from typing_extensions import TypedDict
@@ -20,13 +21,13 @@ class ProjectServices(pulumi.ComponentResource):
         self,
         # Required
         name: str,
-        project_id: str,
+        project_id: pulumi.Input[str],
         # Optional
-        enable_apis: bool = True,
-        activate_apis: List[str] = [],
-        activate_api_identities: List[APIIdentity] = [],
-        disable_services_on_destroy: bool = True,
-        disable_dependent_services: bool = True,
+        enable_apis: pulumi.Input[bool] = True,
+        activate_apis: pulumi.Input[Sequence[pulumi.Input[str]]] = [],
+        activate_api_identities: pulumi.Input[Sequence[pulumi.Input[APIIdentity]]] = [],
+        disable_services_on_destroy: pulumi.Input[bool] = True,
+        disable_dependent_services: pulumi.Input[bool] = True,
         opts: Optional[pulumi.ResourceOptions] = None,
     ):
         """__init__.
@@ -63,7 +64,7 @@ class ProjectServices(pulumi.ComponentResource):
         :type opts: Optional[pulumi.ResourceOptions]
         """
         super().__init__(
-            t="gcp:projectfactory:ProjectServices",
+            t="projectfactory:gcp:ProjectServices",
             name=name,
             props={"project_id": project_id},
             opts=opts,
