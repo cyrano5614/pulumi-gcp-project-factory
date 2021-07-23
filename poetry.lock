@@ -280,7 +280,7 @@ six = ">=1.9"
 
 [[package]]
 name = "pulumi"
-version = "3.6.0"
+version = "3.8.0"
 description = "Pulumi's Python SDK"
 category = "main"
 optional = false
@@ -718,7 +718,7 @@ protobuf = [
     {file = "protobuf-3.17.3.tar.gz", hash = "sha256:72804ea5eaa9c22a090d2803813e280fb273b62d5ae497aaf3553d141c4fdd7b"},
 ]
 pulumi = [
-    {file = "pulumi-3.6.0-py2.py3-none-any.whl", hash = "sha256:7dac891a48e8d683a427048c14ded1d753ededead3beac000f19a9b7ddf6e91f"},
+    {file = "pulumi-3.8.0-py2.py3-none-any.whl", hash = "sha256:bc7d1da34ba8c9aeb22e00a265900b538403f16ccb90d2047079f30b06891974"},
 ]
 pulumi-gcp = [
     {file = "pulumi_gcp-5.11.0.tar.gz", hash = "sha256:1c188cf9b9a78edd85d960cfa55a57e156c43f8906d39f9acf62b4623ba50c4e"},
