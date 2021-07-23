@@ -7,23 +7,33 @@ MAKEFLAGS += --no-print-directory
 # help:
 
 # help: compile-requirements           - compile soft requirements to hard versioned requirements
-.PHONY: compile-requirements
-compile-requirements:
-	pip-compile requirements.in > requirements.txt
+# .PHONY: compile-requirements
+# compile-requirements:
+# 	pip-compile requirements.in > requirements.txt
 
 # help: install                        - install dependencies
 .PHONY: install
-install: install-base
+install: install-all
+
+# help: install-all                    - install all dependencies
+.PHONY: install-all
+install-all:
+	@poetry install
 
 # help: install-base                   - install base dependencies
 .PHONY: install-base
 install-base:
-	pip install -r requirements.txt
+	@poetry install --no-dev
 
-# help: install-tests                  - install test dependencies
-.PHONY: install-tests
-install-tests:
-	pip install -r tests/requirements-testing.txt
+# help: install-testing                - install test dependencies
+.PHONY: install-testing
+install-testing:
+	@poetry install
+
+# help: install-linting                - install linting dependencies
+.PHONY: install-linting
+install-linting:
+	@poetry install
 
 # help: help                           - display this makefile's help information
 .PHONY: help
@@ -33,25 +43,25 @@ help:
 # help: test                           - run tests
 .PHONY: test
 test:
-	@python -m unittest discover tests/
+	@poetry run pytest -v -s
 
 # help: lint                           - run lint
 .PHONY: lint
 lint:
-	@flake8 src/ tests/
-	@isort src/ tests/ --check-only --df --profile=black
-	@black src/ tests/ --check --diff
+	@poetry run flake8 src/ tests/ examples/
+	@poetry run isort src/ tests/ examples/ --check-only --df --profile=black
+	@poetry run black src/ tests/ examples/ --check --diff
 
 # help: mypy                           - run typechecking
 .PHONY: mypy
 mypy:
-	@mypy src/
+	@poetry run mypy src/
 
 # help: format                         - perform code style format
 .PHONY: format
 format:
-	@isort src/ tests/ --profile=black
-	@black src/ tests/
+	@poetry run isort src/ tests/ examples/ --profile=black
+	@poetry run black src/ tests/ examples/
 
 # Keep these lines at the end of the file to retain nice help
 # output formatting.

@@ -1,0 +1,6 @@
+name: budget-project
+runtime:
+  name: python
+  options:
+    virtualenv: venv
+description: GCP project factory budget project

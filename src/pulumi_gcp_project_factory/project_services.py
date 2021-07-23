@@ -1,15 +1,20 @@
-# pyright: reportUnboundVariable=false
-try:
-    from typing import List, Optional, Sequence, TypedDict
-except ImportError:
-    from typing import List, Optional
-    from typing_extensions import TypedDict
+import dataclasses
+from typing import TYPE_CHECKING, List, Optional
 
 import pulumi
 import pulumi_gcp as gcp
+from pydantic import BaseModel, validate_arguments
+
+if TYPE_CHECKING:  # pragma: no cover
+    static_check_init_args = dataclasses.dataclass
+else:
+
+    def static_check_init_args(cls):
+        return cls
 
 
-class APIIdentity(TypedDict):
+@static_check_init_args
+class APIIdentity(BaseModel):  # type: ignore
     api: str
     roles: List[str]
 
@@ -17,17 +22,16 @@ class APIIdentity(TypedDict):
 class ProjectServices(pulumi.ComponentResource):
     """ProjectServices."""
 
+    @validate_arguments(config=dict(arbitrary_types_allowed=True))
     def __init__(
         self,
-        # Required
-        name: str,
-        project_id: pulumi.Input[str],
-        # Optional
-        enable_apis: pulumi.Input[bool] = True,
-        activate_apis: pulumi.Input[Sequence[pulumi.Input[str]]] = [],
-        activate_api_identities: pulumi.Input[Sequence[pulumi.Input[APIIdentity]]] = [],
-        disable_services_on_destroy: pulumi.Input[bool] = True,
-        disable_dependent_services: pulumi.Input[bool] = True,
+        resource_name: str,
+        project_id: str,
+        enable_apis: bool = True,
+        activate_apis: List[str] = [],
+        activate_api_identities: List[APIIdentity] = [],
+        disable_services_on_destroy: bool = True,
+        disable_dependent_services: bool = True,
         opts: Optional[pulumi.ResourceOptions] = None,
     ):
         """__init__.
@@ -64,21 +68,21 @@ class ProjectServices(pulumi.ComponentResource):
         :type opts: Optional[pulumi.ResourceOptions]
         """
         super().__init__(
-            t="projectfactory:gcp:ProjectServices",
-            name=name,
+            t="zityspace-gcp:projectfactory:ProjectServices",
+            name=resource_name,
             props={"project_id": project_id},
             opts=opts,
         )
 
-        tmp_activate_apis = [api for api in activate_apis]  # deep copy
+        tmp_activate_apis = [api for api in activate_apis]  # type: ignore
         tmp_activate_apis.extend(
-            [identity["api"] for identity in activate_api_identities]
+            [identity.api for identity in activate_api_identities]  # type: ignore
         )
         services = list(set(tmp_activate_apis)) if enable_apis else []
         service_identities = [
-            {"api": identity["api"], "role": role}
-            for identity in activate_api_identities
-            for role in identity["roles"]
+            {"api": identity.api, "role": role}
+            for identity in activate_api_identities  # type: ignore
+            for role in identity.roles
         ]
 
         """
@@ -86,7 +90,7 @@ class ProjectServices(pulumi.ComponentResource):
 
         activate_apis = [
             "sqladmin.googleapis.com",
-            "bigquery-json.googleapis.com",
+            "bigquery.googleapis.com",
         ]
         activate_api_identities = [{
             api: "healthcare.googleapis.com"
@@ -117,16 +121,15 @@ class ProjectServices(pulumi.ComponentResource):
         service identities
         """
         self.project_service_identities = {}
-        for identity in activate_api_identities:
+        for identity in activate_api_identities:  # type: ignore
             _project_service_identity = gcp.projects.ServiceIdentity(
-                "project_service_identity" + "-" + identity["api"],
+                "project_service_identity" + "-" + identity.api,
                 project=project_id,
-                service=identity["api"],
-                # opts=pulumi.ResourceOptions(provider=google_beta, parent=self),
+                service=identity.api,
                 opts=pulumi.ResourceOptions(parent=self),
             )
 
-            self.project_service_identities[identity["api"]] = _project_service_identity
+            self.project_service_identities[identity.api] = _project_service_identity
 
         """
         service identitiy roles
@@ -142,5 +145,6 @@ class ProjectServices(pulumi.ComponentResource):
                 project=project_id,
                 role=service_identity["role"],
                 member=f"serviceAccount:{self.project_service_identities[service_identity['api']].email}",  # noqa type: ignore
+                opts=pulumi.ResourceOptions(parent=self),
             )
             self.project_service_identity_roles.append(_project_service_identity_role)

@@ -1,0 +1,6 @@
+name: simple_project_services_demo
+runtime:
+  name: python
+  options:
+    virtualenv: venv
+description: Demo of project services

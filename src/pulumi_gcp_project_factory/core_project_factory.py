@@ -1,19 +1,98 @@
-"""A Google Cloud Python Pulumi program for opionated admin project"""
-from typing import Dict, List, Optional
+from typing import Dict, List, Mapping, Optional, Sequence
 
 import pulumi
 import pulumi_gcp as gcp
 import pulumi_random as random
 
-from pulumi_gcp_project_factory.project_services import APIIdentity, ProjectServices
+from .project_services import APIIdentity, ProjectServices
 
-"""
-defaults
-"""
 random_suffix = random.RandomId("random_suffix", byte_length=2)
 
 # def generate_project_id():
 #     return random_suffix.hex.apply(lambda suffix: f"{random_}-seed-{suffix}")
+
+
+@pulumi.input_type
+class CoreProjectFactoryArgs:
+
+    name: pulumi.Input[str] = pulumi.property("name")
+    org_id: pulumi.Input[str] = pulumi.property("orgId")
+    billing_account: pulumi.Input[str] = pulumi.property("billingAccount")
+    group_email: Optional[pulumi.Input[str]] = pulumi.property(
+        "groupEmail", default=None
+    )
+    group_role: Optional[pulumi.Input[str]] = pulumi.property("groupRole", default=None)
+    lien: pulumi.Input[bool] = pulumi.property("lien", default=False)
+    manage_group: pulumi.Input[bool] = pulumi.property("manageGroup", default=False)
+    project_id: Optional[pulumi.Input[str]] = pulumi.property("projectId", default=None)
+    random_project_id: pulumi.Input[bool] = pulumi.property(
+        "randomProjectId", default=False
+    )
+    shared_vpc: Optional[pulumi.Input[str]] = pulumi.property("sharedVpc", default=None)
+    folder_id: Optional[pulumi.Input[str]] = pulumi.property("folderId", default=None)
+    create_project_sa: pulumi.Input[bool] = pulumi.property(
+        "createProjectSa", default=True
+    )
+    project_sa_name: pulumi.Input[str] = pulumi.property(
+        "projectSaName", default="project-service-account"
+    )
+    sa_role: Optional[pulumi.Input[str]] = pulumi.property("saRole", default=None)
+    activate_apis: pulumi.Input[Sequence[pulumi.Input[str]]] = pulumi.property(
+        "activateApis", default=[]
+    )
+    activate_api_identities: pulumi.Input[
+        Sequence[pulumi.InputType["APIIdentity"]]
+    ] = pulumi.property("activateApiIdentities", default=[])
+    usage_bucket_name: Optional[pulumi.Input[str]] = pulumi.property(
+        "usageBucketName", default=None
+    )
+    usage_bucket_prefix: Optional[pulumi.Input[str]] = pulumi.property(
+        "usageBucketPrefix", default=None
+    )
+    shared_vpc_subnets: pulumi.Input[Sequence[pulumi.Input[str]]] = pulumi.property(
+        "sharedVpcSubnets", default=[]
+    )
+    labels: pulumi.Input[Mapping[str, pulumi.Input[str]]] = pulumi.property(
+        "labels", default={}
+    )
+    bucket_project: Optional[pulumi.Input[str]] = pulumi.property(
+        "bucketProject", default=None
+    )
+    bucket_name: Optional[pulumi.Input[str]] = pulumi.property(
+        "bucketName", default=None
+    )
+    bucket_location: pulumi.Input[str] = pulumi.property("bucketLocation", default="US")
+    bucket_versioning: pulumi.Input[bool] = pulumi.property(
+        "bucketVersioning", default=False
+    )
+    bucket_force_destroy: pulumi.Input[bool] = pulumi.property(
+        "bucketForceDestroy", default=False
+    )
+    bucket_ula: pulumi.Input[bool] = pulumi.property("bucketUla", default=True)
+    auto_create_network: pulumi.Input[bool] = pulumi.property(
+        "autoCreateNetwork", default=False
+    )
+    disable_services_on_destroy: pulumi.Input[bool] = pulumi.property(
+        "disableServicesOnDestroy", default=True
+    )
+    default_service_account: pulumi.Input[str] = pulumi.property(
+        "defaultServiceAccount", default="disable"
+    )
+    disable_dependent_services: pulumi.Input[bool] = pulumi.property(
+        "disableDependentServices", default=True
+    )
+    enable_shared_vpc_service_project: pulumi.Input[bool] = pulumi.property(
+        "enableSharedVpcServiceProject", default=False
+    )
+    enable_shared_vpc_host_project: pulumi.Input[bool] = pulumi.property(
+        "enableSharedVpcHostProject", default=False
+    )
+    vpc_service_control_attach_enabled: pulumi.Input[bool] = pulumi.property(
+        "vpcServiceControlAttachEnabled", default=False
+    )
+    vpc_service_control_perimeter_name: Optional[pulumi.Input[str]] = pulumi.property(
+        "vpcServiceControlPerimeterName", default=None
+    )
 
 
 class CoreProjectFactory(pulumi.ComponentResource):
@@ -22,41 +101,44 @@ class CoreProjectFactory(pulumi.ComponentResource):
     def __init__(
         self,
         # Required
-        name: str,
-        org_id: str,
+        resource_name: str,
+        name: pulumi.Input[str],
+        org_id: pulumi.Input[str],
+        billing_account: pulumi.Input[str],
         # Optional
-        billing_account: str,
-        group_email: Optional[str] = None,
-        group_role: Optional[str] = None,
-        lien: bool = False,
-        manage_group: bool = False,
-        project_id: Optional[str] = None,
-        random_project_id: bool = False,
-        shared_vpc: Optional[str] = None,
-        folder_id: Optional[str] = None,
-        create_project_sa: bool = True,
-        project_sa_name: str = "project-service-account",
-        sa_role: Optional[str] = None,
-        activate_apis: List[str] = [],
-        activate_api_identities: List[APIIdentity] = [],
-        usage_bucket_name: Optional[str] = None,
-        usage_bucket_prefix: Optional[str] = None,
-        shared_vpc_subnets: List[str] = [],
-        labels: Dict[str, str] = {},
-        bucket_project: Optional[str] = None,
-        bucket_name: Optional[str] = None,
-        bucket_location: str = "US",
-        bucket_versioning: bool = False,
-        bucket_force_destroy: bool = False,
-        bucket_ula: bool = True,
-        auto_create_network: bool = False,
-        disable_services_on_destroy: bool = True,
-        default_service_account: str = "disable",
-        disable_dependent_services: bool = True,
-        enable_shared_vpc_service_project: bool = False,
-        enable_shared_vpc_host_project: bool = False,
-        vpc_service_control_attach_enabled: bool = False,
-        vpc_service_control_perimeter_name: Optional[str] = None,
+        group_email: Optional[pulumi.Input[str]] = None,
+        group_role: Optional[pulumi.Input[str]] = None,
+        lien: pulumi.Input[bool] = False,
+        manage_group: pulumi.Input[bool] = False,
+        project_id: Optional[pulumi.Input[str]] = None,
+        random_project_id: pulumi.Input[bool] = False,
+        shared_vpc: Optional[pulumi.Input[str]] = None,
+        folder_id: Optional[pulumi.Input[str]] = None,
+        create_project_sa: pulumi.Input[bool] = True,
+        project_sa_name: pulumi.Input[str] = "project-service-account",
+        sa_role: Optional[pulumi.Input[str]] = None,
+        activate_apis: pulumi.Input[Sequence[pulumi.Input[str]]] = [],
+        activate_api_identities: pulumi.Input[
+            Sequence[pulumi.InputType["APIIdentity"]]
+        ] = [],
+        usage_bucket_name: Optional[pulumi.Input[str]] = None,
+        usage_bucket_prefix: Optional[pulumi.Input[str]] = None,
+        shared_vpc_subnets: pulumi.Input[Sequence[pulumi.Input[str]]] = [],
+        labels: pulumi.Input[Mapping[str, pulumi.Input[str]]] = {},
+        bucket_project: Optional[pulumi.Input[str]] = None,
+        bucket_name: Optional[pulumi.Input[str]] = None,
+        bucket_location: pulumi.Input[str] = "US",
+        bucket_versioning: pulumi.Input[bool] = False,
+        bucket_force_destroy: pulumi.Input[bool] = False,
+        bucket_ula: pulumi.Input[bool] = True,
+        auto_create_network: pulumi.Input[bool] = False,
+        disable_services_on_destroy: pulumi.Input[bool] = True,
+        default_service_account: pulumi.Input[str] = "disable",
+        disable_dependent_services: pulumi.Input[bool] = True,
+        enable_shared_vpc_service_project: pulumi.Input[bool] = False,
+        enable_shared_vpc_host_project: pulumi.Input[bool] = False,
+        vpc_service_control_attach_enabled: pulumi.Input[bool] = False,
+        vpc_service_control_perimeter_name: Optional[pulumi.Input[str]] = None,
         opts: Optional[pulumi.ResourceOptions] = None,
     ):
         """__init__.
@@ -167,8 +249,8 @@ class CoreProjectFactory(pulumi.ComponentResource):
         :type opts: Optional[pulumi.ResourceOptions]
         """
         super().__init__(
-            t="projectfactory:gcp:CoreProjectFactory",
-            name=name,
+            t="zityspace-gcp:projectfactory:CoreProjectFactory",
+            name=resource_name,
             props={},
             opts=opts,
         )
@@ -182,10 +264,6 @@ class CoreProjectFactory(pulumi.ComponentResource):
             if random_project_id is not None
             else base_project_id
         )
-        # api_s_account = main_project.number.apply(
-        #     lambda number: f"{number}@cloudservices.gserviceaccount.com"
-        # )
-        # api_s_account_fmt = f"serviceAccount:{api_s_account}"
         # project_bucket_name = (
         #     bucket_name if bucket_name is not None else f"{temp_project_id}-state"
         # )
@@ -212,6 +290,10 @@ class CoreProjectFactory(pulumi.ComponentResource):
             labels=labels,
             opts=pulumi.ResourceOptions(parent=self),
         )
+        api_s_account = main_project.number.apply(
+            lambda number: f"{number}@cloudservices.gserviceaccount.com"
+        )
+        api_s_account_fmt = f"serviceAccount:{api_s_account}"
 
         """
         project lien

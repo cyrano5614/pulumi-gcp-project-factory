@@ -3,7 +3,7 @@ import unittest
 import pulumi
 
 
-class MyMocks(pulumi.runtime.Mocks):
+class TestMocks(pulumi.runtime.Mocks):
     def new_resource(self, args: pulumi.runtime.MockResourceArgs):
         return [args.name + "_id", args.inputs]
 
@@ -11,7 +11,7 @@ class MyMocks(pulumi.runtime.Mocks):
         return {}
 
 
-pulumi.runtime.set_mocks(MyMocks())
+pulumi.runtime.set_mocks(TestMocks())
 
 # It's important to import _after_ the mocks are defined.
 from pulumi_gcp_project_factory.project_services import (  # noqa isort:skip type: ignore
@@ -43,7 +43,7 @@ class TestingWithMocks(unittest.TestCase):
     @pulumi.runtime.test
     def setUp(self):
         self.project_services = ProjectServices(
-            name=TEST_NAME,
+            TEST_NAME,
             project_id=TEST_PROJECT_ID,
             activate_apis=TEST_ACTIVATE_APIS,
             activate_api_identities=TEST_ACTIVATE_API_IDENTITIES,  # type: ignore

@@ -1,3 +1,7 @@
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = ["--disable-warnings", "--cov"] # "--cov",
+
 [tool.black]
 line-length = 88
 target-version = ['py36', 'py37', 'py38', 'py39']
@@ -8,7 +12,9 @@ exclude = '''
   | \.hg
   | \.mypy_cache
   | \.tox
-  | \.venv
+  | .venv
+  | venv
+  | .direnv
   | _build
   | buck-out
   | build
@@ -16,6 +22,84 @@ exclude = '''
 )/
 '''
 
+[tool.isort]
+profile = "black"
+multi_line_output = 3
+
+[tool.coverage.run]
+source = ["src"]
+branch = true
+context = "${CONTEXT}"
+
+[tool.coverage.report]
+precision = 2
+exclude_lines = [
+  "pragma: no cover",
+  "raise NotImplementedError",
+  "raise NotImplemented",
+  "if TYPE_CHECKING:",
+  "@overload",
+]
+
+[tool.mypy]
+show_error_codes = true
+follow_imports = "silent"
+strict_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+disallow_any_generics = true
+check_untyped_defs = true
+no_implicit_reexport = true
+warn_unused_configs = true
+# disallow_subclassing_any = true
+disallow_incomplete_defs = true
+disallow_untyped_decorators = true
+disallow_untyped_calls = true
+ignore_missing_imports = true
+
+[tool.poetry]
+name = "pulumi-gcp-project-factory"
+version = "0.1.0"
+description = "GCP project factory based on terraform repository with same name"
+authors = ["Inhan Song <cyrano5614@gmail.com>"]
+maintainers = ["Inhan Song <cyrano5614@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+repository = "https://github.com/zityspace/pulumi-gcp-project-factory"
+homepage = "https://github.com/zityspace/pulumi-gcp-project-factory"
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent",
+]
+
+packages = [
+  { include = "pulumi_gcp_project_factory", from = "src" },
+  { include = "src/pulumi_gcp_project_factory/py.typed" },
+]
+
+[tool.poetry.urls]
+"Bug Tracker" = "https://github.com/zityspace/pulumi-gcp-project-factory/issues"
+
+
+[tool.poetry.dependencies]
+python = ">=3.6.2,<4.0"
+pulumi = "^3.5.1"
+pulumi-gcp = "^5.10.1"
+pulumi-random = "^4.2.0"
+pydantic = "^1.8.2"
+typing-extensions = { version = "^3.10.0.0", python = ">=3.6.2,<3.8" }
+dataclasses = { version = "*", python = ">=3.6.2,<3.7" }
+
+[tool.poetry.dev-dependencies]
+black = "^21.6b0"
+flake8 = "^3.9.2"
+isort = "^5.9.1"
+mypy = "^0.910"
+coverage = "^5.5"
+pytest = "^6.2.4"
+pytest-cov = "^2.12.1"
+
 [build-system]
-requires = ["setuptools", "wheel"]
-build-backend = "setuptools.build_meta"
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

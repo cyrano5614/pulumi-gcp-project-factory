@@ -1,0 +1,6 @@
+name: quota-project
+runtime:
+  name: python
+  options:
+    virtualenv: venv
+description: GCP project factory quota project
